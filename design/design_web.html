@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prueba del Backend</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input, button {
+      margin: 5px;
+    }
+    .tarjeta {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Conector a Backend Escolar</h2>
+  <label for="uid">UID del estudiante:</label>
+  <input type="text" id="uid" placeholder="Escribe tu UID" />
+  <br />
+  <button id="btnTimetables">Cargar Horarios</button>
+  <button id="btnTasks">Cargar Tareas</button>
+  <button id="btnMarks">Cargar Notas</button>
+
+  <div id="contenedor"></div>
+
+  <script>
+    const contenedor = document.getElementById("contenedor");
+
+    function limpiar() {
+      contenedor.innerHTML = "";
+    }
+
+    function crearTarjeta(texto) {
+      const tarjeta = document.createElement("div");
+      tarjeta.className = "tarjeta";
+      tarjeta.textContent = texto;
+      contenedor.appendChild(tarjeta);
+    }
+
+    function fetchData(endpoint) {
+      limpiar();
+      const uid = document.getElementById("uid").value; // Obtiene el UID desde el input
+      if (!uid) {
+        alert("Por favor, escribe un UID.");
+        return;
+      }
+
+      fetch(`http://localhost:3000/${endpoint}`, {
+        headers: {
+          "uid": uid // Aquí está enviando el UID como cabecera
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            data.forEach(item => crearTarjeta(JSON.stringify(item, null, 2)));
+          } else {
+            crearTarjeta("Respuesta no esperada: " + JSON.stringify(data));
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          crearTarjeta("Error al conectar con el servidor.");
+        });
+    }
+
+    document.getElementById("btnTimetables").addEventListener("click", () => fetchData("timetables"));
+    document.getElementById("btnTasks").addEventListener("click", () => fetchData("tasks"));
+    document.getElementById("btnMarks").addEventListener("click", () => fetchData("marks"));
+  </script>
+</body>
+</html>
