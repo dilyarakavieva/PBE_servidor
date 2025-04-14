@@ -1,4 +1,4 @@
-// seed.js
+// es para base de datos no se si nos sirve
 const mongoose = require('mongoose');
 const Student = require('./models/Student');
 const Task = require('./models/Task');
