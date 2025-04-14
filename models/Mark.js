@@ -1,11 +1,7 @@
 const mongoose = require('mongoose');
 
-const TaskSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: String,
-  date: { type: Date, required: true },
-  subject: String,
-  student_uid: String // Para asociar tareas a un estudiante
+const MarkSchema = new mongoose.Schema({
+  subject_task: String // Para asociar la nota a algo
 });
 
-module.exports = mongoose.model('Task', TaskSchema);
+module.exports = mongoose.model('MRKk', MarkSchema);
