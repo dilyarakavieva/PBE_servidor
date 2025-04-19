@@ -1,4 +1,4 @@
-// es para base de datos no se si nos sirve
+// seed.js
 const mongoose = require('mongoose');
 const Student = require('./models/Student');
 const Task = require('./models/Task');
@@ -6,7 +6,7 @@ const Mark = require('./models/Mark');
 const Timetable = require('./models/Timetable');
 
 // Cambia esto si tu base de datos tiene otro nombre
-const MONGO_URI = 'mongodb://localhost:27017/pbe_db';
+const MONGO_URI = 'mongodb://localhost:27017/pbe';
 
 const run = async () => {
   try {
