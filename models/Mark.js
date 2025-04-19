@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
 const MarkSchema = new mongoose.Schema({
-  mark: String,
-  subject_task: String // Para asociar la nota a algo
+  subject: String,
+  value: Number,
+  student_uid: String
 });
 
 module.exports = mongoose.model('Mark', MarkSchema);
