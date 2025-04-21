@@ -1,7 +1,11 @@
+
 const mongoose = require('mongoose');
-const StudentSchema = new mongoose.Schema({
-  uid: String,
-  name: String,
+
+const studentSchema = new mongoose.Schema({
+  uid: { type: String, required: true, unique: true },
+  name: { type: String, required: true }
 });
 
-module.exports = mongoose.model('Student', StudentSchema);
+const Student = mongoose.model('Student', studentSchema);
+
+module.exports = Student;
