@@ -2,10 +2,16 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/controllers');
 
-router.get('/timetables', controller.getTimetables); // público
-router.get('/tasks', controller.getTasks); // público
-router.use(controller.authMiddleware); // después de esto, sí exigir UID
-router.get('/marks', controller.getMarks); // protegido
+// Rutas públicas
+router.get('/timetables', controller.getTimetables);
+router.get('/tasks', controller.getTasks);
+router.get('/user/:uid', controller.getUserByUid); // Obtener nombre públicamente
 
+// Autenticación para las siguientes rutas
+router.use(controller.authMiddleware);
+
+// Rutas protegidas
+router.get('/marks', controller.getMarks);
+router.get('/me', controller.getMe); // Obtener UID y nombre del usuario autenticado
 
 module.exports = router;
