@@ -1,36 +1,71 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <title>Prueba del Backend Escolar</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    input, button { margin: 5px; }
-    .tarjeta { border: 1px solid #ccc; padding: 10px; margin: 5px 0; border-radius: 6px; background: #fafafa; }
-    .tarjeta div { margin: 4px 0; }
-    .hidden { display: none; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    input,
+    button {
+      margin: 5px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #0000cc;
+      color: white;
+      text-transform: lowercase;
+    }
+
+    tr:nth-child(even) {
+      background-color: #d9f0ff;
+    }
+
+    tr:nth-child(odd) {
+      background-color: #b3e0ff;
+    }
+
+    #contenedor {
+      margin-top: 20px;
+    }
   </style>
 </head>
-<body>
-  <h2>Prueba del Backend Escolar</h2>
 
-  <!-- Sección inicial para ingresar UID -->
+<body>
   <div id="uid-section">
     <label for="uid-input">Ingrese su UID:</label>
     <input type="text" id="uid-input" placeholder="Escribe tu UID" />
     <button id="btnSetUid">Aceptar UID</button>
   </div>
 
-  <!-- Sección principal: aparece tras ingresar UID -->
   <div id="main-section" class="hidden">
     <p>UID: <span id="uid-display"></span></p>
-    <p>BIENVENIDO! <span name = "name-display"></span></p>
+    <p>Welcome, <span id="name-display"></span></p>
     <button id="btnTimetables">Cargar Horarios</button>
     <button id="btnTasks">Cargar Tareas</button>
     <button id="btnMarks">Cargar Notas</button>
     <div id="contenedor"></div>
-   
-
   </div>
 
   <script>
@@ -38,18 +73,36 @@
     const mainSection = document.getElementById('main-section');
     const uidInput = document.getElementById('uid-input');
     const uidDisplay = document.getElementById('uid-display');
+    const nameDisplay = document.getElementById('name-display');
     const contenedor = document.getElementById('contenedor');
-    const estudiante = estudiantes.find(e => e.uid === uidIngresado);
     let currentUid = '';
 
-    // Mostrar u ocultar secciones
     function showMain() {
       uidSection.classList.add('hidden');
       mainSection.classList.remove('hidden');
       uidDisplay.textContent = currentUid;
     }
 
-    // Evento para confirmar UID
+    function fetchUserName(uid) {
+      fetch(`http://localhost:3000/user/${uid}`, {
+        headers: {
+          'uid': uid
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.name) {
+            nameDisplay.textContent = data.name;
+          } else {
+            nameDisplay.textContent = 'usuario no encontrado';
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          nameDisplay.textContent = 'Error al obtener el nombre';
+        });
+    }
+
     document.getElementById('btnSetUid').addEventListener('click', () => {
       const uid = uidInput.value.trim();
       if (!uid) {
@@ -58,30 +111,51 @@
       }
       currentUid = uid;
       showMain();
+      fetchUserName(uid);
     });
 
     function limpiar() {
       contenedor.innerHTML = '';
     }
 
-    function crearTarjeta(input) {
-      const tarjeta = document.createElement('div');
-      tarjeta.className = 'tarjeta';
-
-      if (typeof input === 'string') {
-        tarjeta.textContent = input;
-        contenedor.appendChild(tarjeta);
+    function renderTabla(data) {
+      if (!Array.isArray(data) || data.length === 0) {
+        contenedor.innerHTML = '<p>No hay datos disponibles.</p>';
         return;
       }
-      // elimina '_v, _id'
-      for (const [key, val] of Object.entries(input)) {
-        if (key === '_id' || key === '__v') continue;
-        const linea = document.createElement('div');
-        linea.innerHTML = `<strong>${key}:</strong> ${val}`;
-        tarjeta.appendChild(linea);
-      }
 
-      contenedor.appendChild(tarjeta);
+      const tabla = document.createElement('table');
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+
+      // Encabezados
+      const headers = Object.keys(data[0]).filter(key => key !== '_id' && key !== '__v');
+      const filaCabecera = document.createElement('tr');
+      headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        filaCabecera.appendChild(th);
+      });
+      thead.appendChild(filaCabecera);
+
+      // Filas
+      data.forEach(item => {
+        const fila = document.createElement('tr');
+        headers.forEach(header => {
+          const td = document.createElement('td');
+          let val = item[header];
+          if (header === 'date' && val) {
+            val = new Date(val).toISOString().split('T')[0]; // Solo fecha
+          }
+          td.textContent = val;
+          fila.appendChild(td);
+        });
+        tbody.appendChild(fila);
+      });
+
+      tabla.appendChild(thead);
+      tabla.appendChild(tbody);
+      contenedor.appendChild(tabla);
     }
 
     function fetchData(endpoint) {
@@ -89,18 +163,14 @@
       fetch(`http://localhost:3000/${endpoint}`, {
         headers: { 'uid': currentUid }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          data.forEach(item => crearTarjeta(item));
-        } else {
-          crearTarjeta('Respuesta no esperada.');
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        crearTarjeta('Error al conectar con el servidor.');
-      });
+        .then(res => res.json())
+        .then(data => {
+          renderTabla(data);
+        })
+        .catch(err => {
+          console.error(err);
+          contenedor.innerHTML = '<p>Error al conectar con el servidor.</p>';
+        });
     }
 
     document.getElementById('btnTimetables')
@@ -111,4 +181,5 @@
       .addEventListener('click', () => fetchData('marks'));
   </script>
 </body>
+
 </html>
