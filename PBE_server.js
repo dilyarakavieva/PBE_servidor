@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
-// Conexión a MongoDB (si aún no lo has hecho)
+// Conexión a MongoDB 
 mongoose.connect('mongodb://localhost:27017/pbe', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.log('Error al conectar con MongoDB', err));
