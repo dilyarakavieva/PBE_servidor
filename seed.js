@@ -1,64 +1,52 @@
-// no se si lo necesitamos.. porque se supone que es base de datos..
+// seed.js
 const mongoose = require('mongoose');
-const Student = require('./models/Student');
+const Timetable = require('./models/Timetable');
 const Task = require('./models/Task');
 const Mark = require('./models/Mark');
-const Timetable = require('./models/Timetable');
+const Student = require('./models/Student');
 
-// Cambia esto si tu base de datos tiene otro nombre
-const MONGO_URI = 'mongodb://localhost:27017/pbe';
+mongoose.connect('mongodb://localhost:27017/pbe', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('Conectado a MongoDB');
+  seedData();
+}).catch(err => console.log('Error al conectar con MongoDB', err));
 
-const run = async () => {
-  try {
-    await mongoose.connect(MONGO_URI);
-    console.log('Conectado a MongoDB');
+async function seedData() {
+  // Limpiar datos anteriores
+  await Student.deleteMany({});
+  await Timetable.deleteMany({});
+  await Task.deleteMany({});
+  await Mark.deleteMany({});
 
-    // UIDs de prueba
-    const estudiantes = [
-      { uid: 'abc123', name: 'Juan Pérez' },
-      { uid: 'def456', name: 'María García' }
-    ];
+  // Crear estudiantes
+  const students = await Student.insertMany([
+    { uid: 'stu001', name: 'Adriana' },
+    { uid: 'stu002', name: 'Carlos' }
+  ]);
 
-    await Student.deleteMany({});
-    await Task.deleteMany({});
-    await Mark.deleteMany({});
-    await Timetable.deleteMany({});
+  // Crear horarios
+  await Timetable.insertMany([
+    { day: 'Mon', hour: '08:00', subject: 'IPAV', room: 'A3001', teacher: 'Olga' },
+    { day: 'Mon', hour: '10:00', subject: 'ICOM', room: 'A3002', teacher: 'Toni Pascual' },
+    { day: 'Tue', hour: '08:00', subject: 'PBE', room: 'A3201', teacher: 'Francesc Oller' },
+  ]);
 
-    await Student.insertMany(estudiantes);
+  // Crear tareas
+  await Task.insertMany([
+    { title: 'Ejercicios', description: 'Resolver 10 problemas', date: new Date(), subject: 'IPAV', student_uid: 'stu001' },
+    { title: 'Lectura cap. 3', description: 'Resumen del capítulo', date: new Date(), subject: 'ICOM', student_uid: 'stu001' },
+    { title: 'Preparar control', date: new Date(), subject: 'PBE', student_uid: 'stu002'  },
+  ]);
 
-    await Task.insertMany([
-      {
-        title: 'Matemáticas',
-        description: 'Ejercicios de integrales',
-        date: new Date(),
-        subject: 'Math',
-        student_uid: 'abc123'
-      },
-      {
-        title: 'Historia',
-        description: 'Resumen del siglo XX',
-        date: new Date(),
-        subject: 'History',
-        student_uid: 'def456'
-      }
-    ]);
+  // Crear notas
+  await Mark.insertMany([
+    { subject: 'IPAV', value: 8.5, uid: 'stu001' },
+    { subject: 'ICOM', value: 7.0, uid: 'stu001' },
+    { subject: 'PBE', value: 10.0, uid: 'stu002' }
+  ]);
 
-    await Mark.insertMany([
-      { subject: 'Math', value: 9, student_uid: 'abc123' },
-      { subject: 'History', value: 7.5, student_uid: 'def456' }
-    ]);
-
-    await Timetable.insertMany([
-      { day: 'Monday', hour: '08:00', subject: 'Math', room: '101', teacher: 'Ana' },
-      { day: 'Tuesday', hour: '10:00', subject: 'History', room: '202', teacher: 'Luis' }
-    ]);
-
-    console.log('Datos de prueba insertados correctamente.');
-  } catch (err) {
-    console.error('Error en seed:', err);
-  } finally {
-    mongoose.disconnect();
-  }
-};
-
-run();
+  console.log('Datos insertados correctamente');
+  mongoose.disconnect();
+}
