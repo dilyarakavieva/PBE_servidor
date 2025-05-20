@@ -11,7 +11,11 @@ const app = express();
 const PORT = 3000;
 
 // Middleware
-app.use(cors()); // Habilitar CORS para aceptar peticiones desde otros orígenes
+app.use(cors({
+  origin: '*',
+  allowedHeaders: ['Content-Type', 'uid']
+}));
+
 app.use(express.json()); // Para que el backend entienda las peticiones con JSON
 
 // Rutas
@@ -19,6 +23,7 @@ const apiRoutes = require('./routes/rutas');
 app.use('/', apiRoutes);
 
 // Arrancar servidor
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor escuchando en http://0.0.0.0:${PORT}`);
 });
+
