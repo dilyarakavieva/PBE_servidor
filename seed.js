@@ -21,7 +21,7 @@ async function seedData() {
 
   // Crear estudiantes
   const students = await Student.insertMany([
-    { uid: 'stu001', name: 'Adriana' },
+    { uid: '5A5BC301', name: 'Adriana' },
     { uid: 'stu002', name: 'Carlos' },
     { uid: 'stu003', name: 'Júlia' }
   ]);
@@ -38,8 +38,8 @@ async function seedData() {
 
   // Crear tareas (incluyendo nuevas asignaturas)
   await Task.insertMany([
-    { title: 'Ejercicios', description: 'Resolver 10 problemas', date: new Date(), subject: 'IPAV', student_uid: 'stu001' },
-    { title: 'Lectura cap. 3', description: 'Resumen del capítulo', date: new Date(), subject: 'ICOM', student_uid: 'stu001' },
+    { title: 'Ejercicios', description: 'Resolver 10 problemas', date: new Date(), subject: 'IPAV', student_uid: '5A5BC301' },
+    { title: 'Lectura cap. 3', description: 'Resumen del capítulo', date: new Date(), subject: 'ICOM', student_uid: '5A5BC301' },
     { title: 'Preparar control', date: new Date(), subject: 'PBE', student_uid: 'stu002' },
     { title: 'Proyecto de red', description: 'Diseñar topología', date: new Date(), subject: 'IXT', student_uid: 'stu003' },
     { title: 'Hacer exmaen de 2020 problema 3', description: 'Ejercicio de codificación', date: new Date(), subject: 'DSBM', student_uid: 'stu002' },
@@ -48,8 +48,8 @@ async function seedData() {
 
   // Crear notas (más asignaturas y estudiantes)
   await Mark.insertMany([
-    { subject: 'IPAV', value: 8.5, uid: 'stu001' },
-    { subject: 'ICOM', value: 7.0, uid: 'stu001' },
+    { subject: 'IPAV', value: 8.5, uid: '5A5BC301' },
+    { subject: 'ICOM', value: 7.0, uid: '5A5BC301' },
     { subject: 'PBE', value: 10.0, uid: 'stu002' },
     { subject: 'IXT', value: 9.0, uid: 'stu003' },
     { subject: 'DSBM', value: 6.5, uid: 'stu002' },
@@ -59,3 +59,87 @@ async function seedData() {
   console.log('Datos insertados correctamente');
   mongoose.disconnect();
 }
+/*
+const { MongoClient } = require('mongodb');
+
+async function seedData() {
+  const client = new MongoClient('mongodb://localhost:27017');
+  
+  try {
+    await client.connect();
+    const db = client.db('pbe');
+
+    // Limpiar colecciones
+    await Promise.all([
+      db.collection('students').deleteMany({}),
+      db.collection('timetables').deleteMany({}),
+      db.collection('tasks').deleteMany({}),
+      db.collection('marks').deleteMany({})
+    ]);
+
+    // Crear estudiantes
+    await db.collection('students').insertMany([
+      { uid: '5A5BC301', name: 'Adriana' },
+      { uid: 'stu002', name: 'Carlos' },
+      { uid: 'stu003', name: 'Júlia' }
+    ]);
+
+    // Crear horarios
+    await db.collection('timetables').insertMany([
+      { day: 'Mon', hour: '08:00', subject: 'IPAV', room: 'A3001', teacher: 'Olga' },
+      { day: 'Mon', hour: '10:00', subject: 'ICOM', room: 'A3002', teacher: 'Toni Pascual' },
+      { day: 'Tue', hour: '08:00', subject: 'PBE', room: 'A3201', teacher: 'Francesc Oller' },
+      { day: 'Wed', hour: '12:00', subject: 'RP', room: 'A3102', teacher: 'Merce' },
+      { day: 'Thu', hour: '14:00', subject: 'DSBM', room: 'A3305', teacher: 'Jordi Salazar' },
+      { day: 'Fri', hour: '09:00', subject: 'IXT', room: 'A3004', teacher: 'Marc Rosa' }
+    ]);
+
+    // Crear tareas
+    await db.collection('tasks').insertMany([
+      { 
+        title: 'Ejercicios', 
+        description: 'Resolver 10 problemas', 
+        date: new Date(), 
+        subject: 'IPAV', 
+        student_uid: '5A5BC301' 
+      },
+      { 
+        title: 'Lectura cap. 3', 
+        description: 'Resumen del capítulo', 
+        date: new Date(), 
+        subject: 'ICOM', 
+        student_uid: '5A5BC301' 
+      },
+      { 
+        title: 'Preparar control', 
+        date: new Date(), 
+        subject: 'PBE', 
+        student_uid: 'stu002' 
+      },
+      { 
+        title: 'Proyecto de red', 
+        description: 'Diseñar topología', 
+        date: new Date(), 
+        subject: 'IXT', 
+        student_uid: 'stu003' 
+      }
+    ]);
+
+    // Crear notas
+    await db.collection('marks').insertMany([
+      { subject: 'IPAV', value: 8.5, uid: '5A5BC301', date: new Date() },
+      { subject: 'ICOM', value: 7.0, uid: '5A5BC301', date: new Date() },
+      { subject: 'PBE', value: 10.0, uid: 'stu002', date: new Date() },
+      { subject: 'IXT', value: 9.0, uid: 'stu003', date: new Date() }
+    ]);
+
+    console.log('✅ Datos insertados correctamente');
+  } catch (err) {
+    console.error('❌ Error:', err);
+  } finally {
+    await client.close();
+  }
+}
+
+// Ejecutar
+seedData();*/
